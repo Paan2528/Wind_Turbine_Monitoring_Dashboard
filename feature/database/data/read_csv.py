@@ -9,6 +9,9 @@ df = pd.read_csv("opendata.csv",
                  encoding="latin1",
                  on_bad_lines="skip")
 
+# structure of DataFrame, how many rows, column or what kind of column type
 print(df.info())
+# name of column
 print(df.columns.tolist())
+# print first 5 rows
 print(df.head())
