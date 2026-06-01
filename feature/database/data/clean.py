@@ -3,6 +3,7 @@
 
 import sqlite3
 import pandas as pd
+from pathlib import Path
 
 print("Before cleaning:")
 conn = sqlite3.connect("wind_turbine.db")
@@ -30,7 +31,7 @@ df = df.dropna(how="all")
 df = df.drop_duplicates()
 
 # clean culumn names
-df.column = (
+df.columns = (
     df.columns
     .str.strip()
     .str.lower()
@@ -47,11 +48,17 @@ df[text_columns] = df[text_columns].fillna("Unknown")
 
 # fill missing nummeric values with 0
 numeric_column = df.select_dtypes(include="number").columns
-df[numeric_column] = df[numeric_column].fillna("0")
+df[numeric_column] = df[numeric_column].fillna(0)
 
 print("After clean:")
 print(df.head())
 
+BASE_DIR = Path(__file__).parent
+db_path = BASE_DIR / "turbine_clean.db"
+
+print("DB PATH:", db_path)
+
+conn = sqlite3.connect(db_path)
 df.to_sql(
     "turbine_clean",
     conn,
@@ -59,15 +66,15 @@ df.to_sql(
     index=False
 )
 
-conn.close()
+# conn.close()
 ####### read wind_clean#######
-conn = sqlite3.connect("turbine_clean.db")
+
 
 query = """
 SELECT Gemeinde, temperature, wind_speed, wind_direction, weather_code, rain
-FROM turbine_clean 
+FROM turbine_clean
 """
 result = pd.read_sql(query, conn)
 
-print(result)
+# print(result)
 conn.close()
