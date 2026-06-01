@@ -6,7 +6,7 @@ import requests
 # mort of open data is complicate to read because some column missing
 # can read file with carecther (ä,ü,ö)
 
-df = pd.read_csv("opendata.csv",
+df = pd.read_csv("database/data/opendata.csv",
                  sep="\t",
                  encoding="latin1",
                  on_bad_lines="skip")
@@ -53,6 +53,19 @@ if "current" in weather:
 else:
     print("No current weather found")
 
+
+#########################################
+# Weather API into the Table(Wind_Turbine.db)
+weather_data_update = requests.get(weather_url, params=weather_params).json()
+
+current = weather_data_update["current"]
+
+df["temperature"] = current["temperature_2m"]
+df["wind_speed"] = current["wind_speed_10m"]
+df["wind_direction"] = current["wind_direction_10m"]
+df["weather_code"] = current["weather_code"]
+
+print(weather_data_update)
 ############# Table########################
 # connect to SQLite database
 conn = sqlite3.connect("wind_turbine.db")
@@ -65,6 +78,6 @@ df.to_sql(
     index=False
 )
 
+
 conn.close()
 print("Database created successfully!")
-#########################################
