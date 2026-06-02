@@ -4,12 +4,13 @@
 import sqlite3
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 print("Before cleaning:")
 conn = sqlite3.connect("wind_turbine.db")
 
 query = """
-SELECT Gemeinde, temperature, wind_speed, wind_direction, weather_code, rain
+SELECT Gemeinde, Rotordurchmesser, temperature, wind_speed, wind_direction, weather_code, rain
 FROM turbines 
 """
 result = pd.read_sql(query, conn)
@@ -50,6 +51,29 @@ df[text_columns] = df[text_columns].fillna("Unknown")
 numeric_column = df.select_dtypes(include="number").columns
 df[numeric_column] = df[numeric_column].fillna(0)
 
+##### calculate Rotor Area ############
+# 1. clean Rotor Diameter
+df["rotordurchmesser"] = (
+    df["rotordurchmesser"]
+    .astype(str)
+    .str.replace(",", ".")
+)
+df["rotordurchmesser"] = pd.to_numeric(
+    df["rotordurchmesser"],
+    errors="coerce"
+)
+# 2. calculate Rotor Area
+# A = π(r**2)
+df["roter_area"] = (
+    np.pi * (df["rotordurchmesser"]/2) ** 2
+)
+# check data (roterdurchmess,rotor_area)
+print(df[
+    ["rotordurchmesser", "roter_area"]
+].head()
+)
+######################################
+
 print("After clean:")
 print(df.head())
 
@@ -66,12 +90,12 @@ df.to_sql(
     index=False
 )
 
-# conn.close()
+
 ####### read wind_clean#######
 
 
 query = """
-SELECT Gemeinde, temperature, wind_speed, wind_direction, weather_code, rain
+SELECT Gemeinde, Rotordurchmesser, temperature, wind_speed, wind_direction, weather_code, rain
 FROM turbine_clean
 """
 result = pd.read_sql(query, conn)
