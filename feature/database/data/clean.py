@@ -64,15 +64,45 @@ df["rotordurchmesser"] = pd.to_numeric(
 )
 # 2. calculate Rotor Area
 # A = π(r**2)
-df["roter_area"] = (
+df["rotor_area"] = (
     np.pi * (df["rotordurchmesser"]/2) ** 2
 )
 # check data (roterdurchmess,rotor_area)
 print(df[
-    ["rotordurchmesser", "roter_area"]
+    ["rotordurchmesser", "rotor_area"]
 ].head()
 )
 ######################################
+##### Calculate Power_Output#########
+# power = 0.5 * are_density * roter_area * wind_speed
+
+rho = 1.225
+cp = 0.4
+
+df["power_output"] = (
+    0.5
+    * rho
+    * df["rotor_area"]
+    * (df["wind_speed"] ** 3)
+    * cp
+)
+# convert Watt to kW
+df["power_output_kW"] = df["power_output"]/1000
+
+##### check data######################
+print(
+    df[
+        [
+            "anlage",
+            "rotordurchmesser",
+            "rotor_area",
+            "wind_speed",
+            "power_output_kW"
+        ]
+    ].head()
+)
+
+#####################################
 
 print("After clean:")
 print(df.head())
