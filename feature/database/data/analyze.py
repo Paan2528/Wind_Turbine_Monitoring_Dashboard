@@ -8,7 +8,7 @@ db_path = BASE_DIR / "turbine_clean.db"
 
 conn = sqlite3.connect(db_path)
 
-query = """SELECT gemeinde
+query = """SELECT *
 FROM turbine_clean
 """
 df = pd.read_sql(query, conn)
@@ -25,4 +25,18 @@ plt.ylabel("Number of Turbines")
 plt.xticks(rotation=45)
 
 plt.tight_layout()
+plt.show()
+
+##### power_output VS wind_speed#####
+print(df.shape)
+print(df.columns.tolist())
+print(df.head())
+
+df.columns = df.columns.str.strip()
+plt.figure(figsize=(10, 6))
+plt.scatter(df["wind_speed"], df["power_output_kW"])
+plt.title("Wind Soeen VS Power Output")
+plt.xlabel("Wind Speed")
+plt.ylabel("Power output")
+
 plt.show()
