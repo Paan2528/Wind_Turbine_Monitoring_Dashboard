@@ -63,3 +63,16 @@ plt.title("Estimated Power Output Over Time")
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
+
+# wind_speed vs estimated_power_kW
+
+plt.plot(
+    weather_df["wind_speed"],
+    weather_df["estimated_power_kw"]
+)
+plt.xlabel("Wind_speed")
+plt.ylabel("Estimated Power (kW)")
+plt.title("Estimated Power Output Over Wind")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
