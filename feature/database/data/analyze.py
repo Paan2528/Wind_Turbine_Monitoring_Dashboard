@@ -5,40 +5,19 @@ from pathlib import Path
 
 ####################################################
 BASE_DIR = Path(__file__).parent
-db_path = BASE_DIR / "turbine_clean.db"
-conn = sqlite3.connect(db_path)
+turbine_db = BASE_DIR / "turbine_clean.db"
+weather_db = BASE_DIR / "wind_turbine.db"
 
-df = pd.read_sql(
-    "SELECT * FROM turbine_clean",
-    conn
-)
+conn_turbine = sqlite3.connect(turbine_db)
+df = pd.read_sql("SELECT * FROM turbine_clean", conn_turbine)
+conn_turbine.close()
 
-BASE_DIR = Path(__file__).parent
-db_path = BASE_DIR / "wind_turbine.db"
-conn = sqlite3.connect(db_path)
-hourly_df = pd.read_sql(
-    "SELECT * FROM weather_data",
-    conn
-)
+conn_weather = sqlite3.connect("wind_turbine.db")
+weather_df = pd.read_sql("SELECT * FROM weather_data", conn_weather)
+conn_weather.close()
 
-query = """SELECT *
-FROM turbine_clean
-"""
-df = pd.read_sql(query, conn)
-###############################
-conn = sqlite3.connect(db_path)
-
-tables = pd.read_sql(
-    "SELECT name FROM sqlite_master WHERE type='table'",
-    conn
-)
-
-print(tables)
-
-conn.close()
 ############################
 
-conn.close()
 
 city_count = df["gemeinde"].value_counts().head(10)
 
@@ -67,7 +46,7 @@ rho = 1.225
 cp = 0.4
 
 weather_df["estimated_power_kw"] = (
-    0.5 * rho * rotor_area * (weather_df["wind_speed_10m"] ** 3)
+    0.5 * rho * rotor_area * (weather_df["wind_speed"] ** 3)
     * cp
 )/1000
 
