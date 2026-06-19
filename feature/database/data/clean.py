@@ -8,24 +8,19 @@ import numpy as np
 
 # wind_turbine from API file.
 print("Before cleaning:")
+
 conn = sqlite3.connect("wind_turbine.db")
 
-query = """
-SELECT Gemeinde, rotordurchmesser, temperature, wind_speed, wind_direction, weather_code, rain 
-FROM turbines 
-"""
-result = pd.read_sql(query, conn)
-
-
-print(result)
+df = pd.read_sql("""
+SELECT Gemeinde, rotordurchmesser, temperature, wind_speed, wind_direction, weather_code, rain, anlage
+FROM turbines
+""",
+                 conn)
 conn.close()
 
+
 ###########################################
-conn = sqlite3.connect("wind_turbine.db")
-df = pd.read_sql(
-    "SELECT * FROM weather_data",
-    conn
-)
+
 
 # remove completely empty rows
 df = df.dropna(how="all")
