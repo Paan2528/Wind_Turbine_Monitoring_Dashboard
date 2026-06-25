@@ -11,26 +11,55 @@ from pathlib import Path
 # ++++++++ Alert Table +++++++++
 # id, turbine_id, time, alert_type, severity, message, wind_speed
 
-BASE_DIR = Path(__file__).parent
-turbine_db = BASE_DIR / "turbine_clean.db"
-weather_db = BASE_DIR / "wind_turbine.db"
+BASE_DIR = Path(__file__).resolve().parent.parent / "database" / "data"
+db_path = BASE_DIR / "wind_turbine.db"
+print(db_path)
 
-conn_turbine = sqlite3.connect(turbine_db)
-df = pd.read_sql("SELECT * FROM turbine_clean", conn_turbine)
-conn_turbine.close()
+conn = sqlite3.connect(db_path)
+weather_df = pd.read_sql("SELECT * FROM weather_data", conn)
+wind_speed = pd.read_sql("SELECT * FROM weather_data", conn)
 
-conn_weather = sqlite3.connect("wind_turbine.db")
-weather_df = pd.read_sql("SELECT * FROM weather_data", conn_weather)
-conn_weather.close()
+print("wind speed:", wind_speed)
 
-###### check table##############
-print(conn_turbine)
-print(conn_weather)
 ###########################
+
 
 alerts = []
 # example: check latest weather row
 
 latest_weather = weather_df.iloc[-1]
 wind_speed = latest_weather["wind_speed"]
-print(wind_speed)
+print("wind speed:", wind_speed)
+
+if wind_speed > 20:
+    alerts.append({
+        "alert_type": "Hight wind speed",
+        "message": f"wind speed is too hight: {wind_speed} m/s",
+        "severity": "hight"
+    })
+elif wind_speed < 3:
+    alerts.append({
+        "alert_type": "Low wind speed",
+        "message": f"wind speed is too low: {wind_speed} m/s",
+        "severity": "low"
+    })
+else:  # wind_speed <= 3 and wind_speed <= 20
+    alerts.append({
+        "alert_type": "Appropriate wind speed",
+        "message": f"wind speed is appropriate: {wind_speed} m/s",
+        "severity": "appropriate"
+    })
+
+alerts_df = pd.DataFrame(alerts)
+if not alerts_df.empty:
+    alerts_df.to_sql(
+        "alerts",
+        conn,
+        if_exists="append",
+        index=False
+    )
+
+print(alerts)
+print(alerts_df)
+conn.close()
+print("Alert system checked.")
